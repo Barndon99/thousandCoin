@@ -1,4 +1,5 @@
 const { GENESIS_DATA } = require('./config');
+const cryptoHash = require('./cryptoHash');
 //Instance of a block which will eventually be chained
 class Block {
   constructor({ timestamp, lastHash, data, hash }) {
@@ -13,10 +14,14 @@ class Block {
   }
 
   static mineBlock({lastBlock, data}) {
+    const timestamp = Date.now();
+    const lastHash = lastBlock.hash;
+    
     return new Block({
-      timestamp: Date.now(),
-      lastHash: lastBlock.hash,
-      data: data
+      timestamp,
+      lastHash,
+      data,
+      hash: cryptoHash(timestamp, lastHash, data)
     });
   }
 }
