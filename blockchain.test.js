@@ -26,7 +26,7 @@ describe('Blockchain', () => {
       it('returns false', () => {
         blockchain.chain[0] = {data: 'fake-genesis'};
 
-        expect(blockchain.isValidChain(blockchain.chain)).toBe(false);
+        expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
       });
     });
 
@@ -41,20 +41,20 @@ describe('Blockchain', () => {
         it('returns false', () => {
           blockchain.chain[2].lastHash = '4';
 
-          expect(blockchain.isValidChain(blockchain.chain)).toBe(false);
+          expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
         });
 
         describe('the chain contains invalid data', () => {
           it('returns false', () => {
             blockchain.chain[2].data = 'badData';
             
-            expect(blockchain.isValidChain(blockchain.chain)).toBe(false);
+            expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
           });
         });
 
         describe('the chain does not contain invalid blocks', () => {
           it('returns true', () => {            
-            expect(blockchain.isValidChain(blockchain.chain)).toBe(false);
+            expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
           });
         });
       });
