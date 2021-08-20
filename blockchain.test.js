@@ -69,7 +69,7 @@ describe('Blockchain', () => {
       it('the chain does not get replaced', () => {
         newChain.chain[0] = { new: 'value' };
 
-        lockchain.replaceChain(newChain.chain);
+        blockchain.replaceChain(newChain.chain);
 
         expect(blockchain.chain).toEqual(originalChain);
       });
@@ -83,7 +83,7 @@ describe('Blockchain', () => {
       })
       describe('the chain is invalid', () => {
         it('does not replace the chain', () => {
-          newChain.chain[2].hash = 'wrong hash buddy';
+          newChain.chain[0].hash = 'wrong hash buddy';
 
           blockchain.replaceChain(newChain.chain);
 
