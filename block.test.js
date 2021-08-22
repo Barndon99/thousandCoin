@@ -78,6 +78,12 @@ describe("Block Class", () => {
     it('has a leading # of zeros that matches minedBlock difficulty', () => {
       expect(minedBlock.hash.substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty))
     });  
+
+    it('adjusts difficulty', () => {
+      const possibleResults = [lastBlock.difficulty + 1, lastBlock.difficulty - 1];
+
+      expect(possibleResults.includes(minedBlock.difficulty)).toBe(true);
+    })
   });
 
   describe('adjust difficulty', () => {
