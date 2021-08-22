@@ -73,10 +73,10 @@ describe("Block Class", () => {
             data
           )
         );
+    });
 
     it('has a leading # of zeros that matches minedBlock difficulty', () => {
       expect(minedBlock.hash.substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty))
-    })  
-    });
+    });  
   });
 });
