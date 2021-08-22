@@ -8,11 +8,16 @@ describe("Block Class", () => {
   const lastHash = 'someLastHash';
   const data = ['data1', 'data2'];
   const hash = 'someHash';
+  const difficulty = 1;
+  const nonce = 1;
+
   const block = new Block({
     timestamp,
     lastHash,
     data,
-    hash
+    hash,
+    difficulty,
+    nonce
   });
 
   //Best practice would be to split these into 4 tests
@@ -21,6 +26,8 @@ describe("Block Class", () => {
     expect(block.lastHash).toEqual('someLastHash');
     expect(block.hash).toEqual('someHash');
     expect(block.data.length).toEqual(2);
+    expect(block.nonce).toEqual(nonce);
+    expect(block.difficulty).toEqual(difficulty);
   });
 
   describe('genesis', () => {
@@ -42,17 +49,34 @@ describe("Block Class", () => {
     it('returns a block', () => {
       expect(minedBlock instanceof Block).toBe(true);
     });
+
     it('set the lastHash variable to be the hash of the last block', () => {
       expect(minedBlock.lastHash).toEqual(lastBlock.hash);
     });
+
     it('sets data', () => {
       expect(minedBlock.data).toEqual(data);
     });
+
     it('sets a timestamp', () => {
       expect(minedBlock.timestamp).not.toEqual(undefined);
     });
+
     it('creates a sha256 hash', () => {
-      expect(minedBlock.hash).toEqual(cryptoHash(minedBlock.timestamp, lastBlock.hash, data));
+      expect(minedBlock.hash)
+        .toEqual(
+          cryptoHash(
+            minedBlock.timestamp, 
+            lastBlock.hash, 
+            minedBlock.nonce, 
+            minedBlock.difficulty, 
+            data
+          )
+        );
+
+    it('has a leading # of zeros that matches minedBlock difficulty', () => {
+      expect(minedBlock.hash.substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty))
+    })  
     });
   });
 });

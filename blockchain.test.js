@@ -1,7 +1,7 @@
 const Blockchain = require('./blockchain');
 const Block = require('./block');
 
-describe('Blockchain', () => {
+describe('Blockchain Class', () => {
   let blockchain, newChain, originalChain;
 
   beforeEach(() => {
