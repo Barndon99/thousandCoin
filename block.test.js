@@ -4,20 +4,24 @@ const cryptoHash = require("./cryptoHash");
 const { GENESIS_DATA, MINE_RATE } = require("./config");
 
 describe("Block Class", () => {
+  let block;
+  
   const timestamp = 2000;
   const lastHash = 'someLastHash';
   const data = ['data1', 'data2'];
   const hash = 'someHash';
   const difficulty = 1;
   const nonce = 1;
-
-  const block = new Block({
-    timestamp,
-    lastHash,
-    data,
-    hash,
-    difficulty,
-    nonce
+  
+  beforeEach(() => {
+    block = new Block({
+      timestamp,
+      lastHash,
+      data,
+      hash,
+      difficulty,
+      nonce
+    });
   });
 
   //Best practice would be to split these into 4 tests
@@ -83,6 +87,12 @@ describe("Block Class", () => {
       const possibleResults = [lastBlock.difficulty + 1, lastBlock.difficulty - 1];
 
       expect(possibleResults.includes(minedBlock.difficulty)).toBe(true);
+    });
+
+    it('cannot lower difficulty below 1', () => {
+      block.difficulty = -1;
+
+      expect(Block.adjustDifficulty({originalBlock: block})).toEqual(1);
     })
   });
 
