@@ -1,5 +1,6 @@
 const { GENESIS_DATA, MINE_RATE } = require('./config');
 const cryptoHash = require('./cryptoHash');
+const hexToBinary = require('hex-to-binary');
 //Instance of a block which will eventually be chained
 class Block {
   constructor({ timestamp, lastHash, data, hash, nonce, difficulty }) {
@@ -26,7 +27,7 @@ class Block {
       timestamp = Date.now();
       difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
       hash = cryptoHash(timestamp, lastHash, data, difficulty, nonce);
-    } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
+    } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
     
     return new Block({
       timestamp,
