@@ -1,12 +1,15 @@
 const express = require('express');
-//const bodyParser = require('body-parser');
 
-const Blockchain = require('./blockchain');
+const Blockchain = require('./blockchain.js');
+const PubSub = require('./pubsub.js')
 
 const app = express();
 const blockchain = new Blockchain();
+const pubsub = new PubSub({ blockchain });
 
-//app.use(bodyParser.json());
+setTimeout(() => pubsub.broadcastChain(), 1000);
+
+
 app.use(express.urlencoded({extended: true})); 
 app.use(express.json());
 
