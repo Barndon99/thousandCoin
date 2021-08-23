@@ -1,3 +1,5 @@
+const hexToBinary = require('hex-to-binary');
+
 const Block = require("./block");
 const cryptoHash = require("./cryptoHash");
 
@@ -80,7 +82,7 @@ describe("Block Class", () => {
     });
 
     it('has a leading # of zeros that matches minedBlock difficulty', () => {
-      expect(minedBlock.hash.substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty))
+      expect(hexToBinary(minedBlock.hash).substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty))
     });  
 
     it('adjusts difficulty', () => {
