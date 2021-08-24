@@ -42,7 +42,7 @@ describe('Transaction Class', () => {
     });
 
     it('sets a valid amount', () => {
-      expect(transaction.input.amount).toHaveProperty(senderWallet.balance);
+      expect(transaction.input.amount).toEqual(senderWallet.balance);
     });
 
     it('sets the address to the senderWallets publicKey', () => {
