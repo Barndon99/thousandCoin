@@ -1,17 +1,17 @@
 const Wallet = require('./index');
 
 describe('Wallet Class', () => {
-  const wallet;
+  let wallet;
   
   beforeEach(() => {
     wallet = new Wallet();
   });
 
   it('has a balance', () => {
-    expect(wallet).toHavePropert('balance');
+    expect(wallet).toHaveProperty('balance');
   })
 
   it('has a public key', () => {
-    expect(wallet).toHavePropert('publicKey');
+    expect(wallet).toHaveProperty('publicKey');
   })
 });
