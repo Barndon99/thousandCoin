@@ -15,7 +15,7 @@ const transactionPool = new TransactionPool();
 //Wallet class is necessary to post transactions
 const wallet = new Wallet();
 //Uses redis to broadcast and recieve updates to the network
-const pubsub = new PubSub({ blockchain });
+const pubsub = new PubSub({ blockchain, transactionPool });
 
 const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
@@ -57,10 +57,14 @@ app.post('/api/transaction', (req, res) => {
 
   transactionPool.setTransaction(transaction);
 
-  console.log('transactionPool: ', transactionPool);
+  pubsub.broadcastTransaction(transaction);
 
   res.json({ type: 'success', transaction });
 });
+
+app.get('/api/transactionPoolMap', (req, res) => {
+  res.json(transactionPool.transactionMap);
+})
 
 const syncChains = () => {
   request({ url: `${ROOT_NODE_ADDRESS}/api/blocks`}, (error, response, body) => {
