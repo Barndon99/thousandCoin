@@ -1,5 +1,5 @@
 const Wallet = require('./index');
-const { verifySignature } = require('.')
+const { verifySignature } = require('../helpers')
 
 
 describe('Wallet Class', () => {
@@ -24,8 +24,8 @@ describe('Wallet Class', () => {
       expect(
         verifySignature({
           publicKey: wallet.publicKey,
-          data,
-          signature: wallet.sign
+          data: data,
+          signature: wallet.sign(data)
         })
       ).toBe(true);
     });
@@ -34,7 +34,7 @@ describe('Wallet Class', () => {
       expect(
         verifySignature({
           publicKey: wallet.publicKey,
-          data,
+          data: data,
           signature: new Wallet().sign(data)
         })
       ).toBe(false);
