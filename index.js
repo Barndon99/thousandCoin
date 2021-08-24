@@ -4,7 +4,8 @@ const request = require('request');
 const Blockchain = require('./blockchain/index.js');
 const PubSub = require('./app/pubsub.js');
 const TransactionPool = require('./wallet/transactionPool.js');
-const Wallet = require('./wallet')
+const Wallet = require('./wallet');
+const TransactionMiner = require('./app/transactionMiner.js');
 
 //starts app
 const app = express();
@@ -16,6 +17,8 @@ const transactionPool = new TransactionPool();
 const wallet = new Wallet();
 //Uses redis to broadcast and recieve updates to the network
 const pubsub = new PubSub({ blockchain, transactionPool });
+//Handles rewarding miners for successfuly mining blocks
+const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub });
 
 const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
@@ -64,6 +67,12 @@ app.post('/api/transaction', (req, res) => {
 
 app.get('/api/transactionPoolMap', (req, res) => {
   res.json(transactionPool.transactionMap);
+})
+
+app.get('/api/mineTransactions', (req, res) => {
+  transactionMiner.mineTransactions();
+
+  res.redirect('/api/blocks');
 })
 
 const syncWithRootState = () => {

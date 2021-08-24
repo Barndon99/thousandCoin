@@ -37,8 +37,8 @@ class TransactionPool {
         if (this.transactionMap[transaction.id]) {
           delete this.transactionMap[transaction.id];
         }
-      }
-    }
+      };
+    };
   }
 }
 
