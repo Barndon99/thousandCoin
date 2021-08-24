@@ -1,8 +1,8 @@
 const express = require('express');
 const request = require('request');
 
-const Blockchain = require('./blockchain.js');
-const PubSub = require('./pubsub.js')
+const Blockchain = require('./blockchain/index.js');
+const PubSub = require('./app/pubsub.js')
 
 const app = express();
 const blockchain = new Blockchain();
