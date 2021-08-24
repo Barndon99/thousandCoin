@@ -14,7 +14,7 @@ class Transaction {
     outputMap[recipient] = amount;
 
     outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
-
+    console.log("*******", senderWallet.publicKey);
     return outputMap;
   }
 

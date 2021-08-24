@@ -9,7 +9,7 @@ class Wallet {
     
     this.keyPair = ec.genKeyPair();
 
-    this.publicKey = this.keyPair.getPublic(); 
+    this.publicKey = this.keyPair.getPublic().encode('hex'); 
   }
 
   sign(data) {

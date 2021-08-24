@@ -2,11 +2,20 @@ const express = require('express');
 const request = require('request');
 
 const Blockchain = require('./blockchain/index.js');
-const PubSub = require('./app/pubsub.js')
+const PubSub = require('./app/pubsub.js');
+const TransactionPool = require('./wallet/transactionPool.js');
+const Wallet = require('./wallet')
 
+//starts app
 const app = express();
+//initializes a blockchain instance
 const blockchain = new Blockchain();
-const pubsub = new PubSub({ blockchain });
+//Initializes a transaction pool across the blockchain using Redis (probably)
+const transactionPool = new TransactionPool();
+//Wallet class is necessary to post transactions
+const wallet = new Wallet();
+//Uses redis to broadcast and recieve updates to the network
+const pubsub = new PubSub({ blockchain, transactionPool });
 
 const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
@@ -31,7 +40,33 @@ app.post('/api/mine', (req, res) => {
   res.redirect('/api/blocks');
 })
 
-const syncChains = () => {
+app.post('/api/transaction', (req, res) => {
+  const { amount, recipient } = req.body;
+
+  let transaction = transactionPool.existingTransaction({ inputAddress: wallet.publicKey });
+
+  try {
+    if (transaction) {
+      transaction.update({ senderWallet: wallet, recipient, amount });
+    } else {
+      transaction = wallet.createTransaction({ recipient, amount });
+    }
+  } catch(error) {
+    return res.status(400).json({type: 'error', message: error.message });
+  }
+
+  transactionPool.setTransaction(transaction);
+
+  pubsub.broadcastTransaction(transaction);
+
+  res.json({ type: 'success', transaction });
+});
+
+app.get('/api/transactionPoolMap', (req, res) => {
+  res.json(transactionPool.transactionMap);
+})
+
+const syncWithRootState = () => {
   request({ url: `${ROOT_NODE_ADDRESS}/api/blocks`}, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootChain = JSON.parse(body);
@@ -40,6 +75,15 @@ const syncChains = () => {
       blockchain.replaceChain(rootChain);
     }
   });
+
+  request({ url: `${ROOT_NODE_ADDRESS}/api/transactionPoolMap`}, (error, response, body) => {
+    if (!error && response.statusCode === 200) {
+      const rootTransactionPoolMap = JSON.parse(body);
+
+      console.log('replace transactionPool map on sync with', rootTransactionPoolMap);
+      transactionPool.setMap(rootTransactionPoolMap);
+    }
+  })
 };
 
 let PEER_PORT;
@@ -49,12 +93,13 @@ if (process.env.GENERATE_PEER_PORT === 'true') {
   PEER_PORT = DEFAULT_PORT + Math.ceil(Math.random() * 1000);
 }
 
+//Set a port allowing for multiple users rather than hardcoding the port
 const port = PEER_PORT || DEFAULT_PORT;
 
 app.listen(port, () => {
   console.log(`Listening on localhost:${port}`);
   
   if (port !== DEFAULT_PORT) {
-    syncChains();
+    syncWithRootState();
   }
 })
