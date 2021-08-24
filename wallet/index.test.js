@@ -110,7 +110,7 @@ describe('Wallet Class', () => {
       });
 
       it('adds all the outputs to the wallet balance', () => {
-        expect(wallet.calculateBalance({
+        expect(Wallet.calculateBalance({
           chain: blockchain.chain,
           address: wallet.publicKey
         })).toEqual(
