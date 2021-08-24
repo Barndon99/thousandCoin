@@ -1,6 +1,8 @@
 const Wallet = require('./index');
 const Transaction = require('./transaction');
 
+const { verifySignature } = require('../helpers');
+
 describe('Transaction Class', () => {
   let transaction, senderWallet, recipient, amount;
 
@@ -28,5 +30,33 @@ describe('Transaction Class', () => {
     it('outputs the remaining balance for the sender wallet', () => {
       expect(transaction.outputMap[senderWallet.publicKey]).toEqual(senderWallet.balance - amount);
     })
+  });
+
+  describe('input', () => {
+    it('has an input', () => {
+      expect(transaction).toHaveProperty('input');
+    });
+
+    it('has a timestamp', () => {
+      expect(transaction.input).toHaveProperty('timestamp');
+    });
+
+    it('sets a valid amount', () => {
+      expect(transaction.input.amount).toHaveProperty(senderWallet.balance);
+    });
+
+    it('sets the address to the senderWallets publicKey', () => {
+      expect(transaction.input.address).toEqual(senderWallet.publicKey);
+    });
+
+    it('can sign the input', () => {
+      expect(
+        verifySignature({
+          publicKey: senderWallet.publicKey,
+          data: transaction.outputMap,
+          signature: transaction.input.signature
+        })
+      ).toBe(true);
+    });
   });
 });
