@@ -32,12 +32,17 @@ class Wallet {
   }
   //calculates the balance based on previous outputs in the chain
   static calculateBalance({ chain, address }) {
+    let hasConductedTransaction = false;
     let outputsTotal = 0;
 
-    for (let i = 1; i < chain.length; i++) {
+    for (let i = chain.length - 1; i > 0; i--) {
       const block = chain[i];
 
       for (let transaction of block.data) {
+        if (transaction.input.address === address) {
+          hasConductedTransaction = true;
+        }
+        
         //Address will not always be defined
         const addressOutput = transaction.outputMap[address];
 
@@ -45,9 +50,15 @@ class Wallet {
           outputsTotal = outputsTotal + addressOutput;
         }
       }
+
+      if (hasConductedTransaction) {
+        break;
+      }
     }
 
-    return STARTING_BALANCE + outputsTotal;
+    //Breaks out of the loop if a transaction matching the walletAddress is found
+
+    return hasConductedTransaction ? outputsTotal : STARTING_BALANCE + outputsTotal;
   }
 };
 
