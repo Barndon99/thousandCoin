@@ -12,7 +12,7 @@ const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
 
 
-setTimeout(() => pubsub.broadcastChain(), 1000);
+// setTimeout(() => pubsub.broadcastChain(), 1000);
 
 app.use(express.urlencoded({extended: true})); 
 app.use(express.json());
@@ -53,6 +53,8 @@ const port = PEER_PORT || DEFAULT_PORT;
 
 app.listen(port, () => {
   console.log(`Listening on localhost:${port}`);
-
-  syncChains();
+  
+  if (port !== DEFAULT_PORT) {
+    syncChains();
+  }
 })

@@ -37,6 +37,13 @@ class PubSub {
   }
 
   publish ({ channel, message }) {
+    //prevent spamming subscribers with messages *refactor?*
+    this.subscriber.unsubscribe(channel, () => {
+      this.publisher.publish(channel, message, () => {
+        this.subscriber.subscribe(channel);
+      });
+    });
+
     this.publisher.publish(channel, message);
   }
 
