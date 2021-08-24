@@ -16,7 +16,14 @@ class Wallet {
     return this.keyPair.sign(cryptoHash(data));
   }
 
-  createTransaction({ recipient, amount }) {
+  createTransaction({ recipient, amount, chain }) {
+    if (chain) {
+      this.balance = Wallet.calculateBalance({
+        chain,
+        address: this.publicKey
+      });
+    }
+
     if (amount > this.balance) {
       throw new Error('Insufficient balance');
     }
@@ -30,7 +37,7 @@ class Wallet {
     for (let i = 1; i < chain.length; i++) {
       const block = chain[i];
 
-      for(let transaction of block.data) {
+      for (let transaction of block.data) {
         //Address will not always be defined
         const addressOutput = transaction.outputMap[address];
 
