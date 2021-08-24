@@ -1,9 +1,9 @@
 const hexToBinary = require('hex-to-binary');
 
 const Block = require("./block");
-const cryptoHash = require("./cryptoHash");
+const cryptoHash = require("../helpers/cryptoHash");
 
-const { GENESIS_DATA, MINE_RATE } = require("./config");
+const { GENESIS_DATA, MINE_RATE } = require("../config");
 
 describe("Block Class", () => {
   let block;
