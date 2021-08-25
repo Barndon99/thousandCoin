@@ -1,5 +1,6 @@
 const Block = require('./block');
 const Transaction = require('../wallet/transaction');
+const Wallet = require('../wallet');
 const { cryptoHash } = require('../helpers');
 const { REWARD_INPUT, MINING_REWARD } = require('../config');
 
@@ -45,14 +46,26 @@ class Blockchain {
             console.error('Invalid block too many transactions');
             return false;
           }
-
+          console.log("******")
           if (Object.values(transaction.outputMap)[0] !== MINING_REWARD) {
             console.error('Miner reward amount is invalid');
             return false;
           } 
+
+          console.log("HERE")
         } else {
             if (!Transaction.validTransaction(transaction)) {
               console.error('Invalid transaction');
+              return false;
+            }
+            console.log("HERE");
+            const trueBalance = Wallet.calculateBalance({ 
+              chain: this.chain, 
+              address: transaction.input.address 
+            });
+
+            if (transaction.input.address !== trueBalance) {
+              console.error('invalid input amount');
               return false;
             }
         }

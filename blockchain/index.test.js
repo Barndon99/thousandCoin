@@ -210,7 +210,28 @@ describe('Blockchain Class', () => {
     });
 
     describe('and the transaction data has at least on malformed input', () => {
-      it('returns false, and logs an error', () => {});
+      it('returns false, and logs an error', () => {
+        wallet.balance = 9000;
+
+        const badMap = {
+          [wallet.publicKey]: 8900,
+          fakeRecipient: 100
+        };
+
+        const badTransaction = {
+          input: {
+            timestamp: Date.now(),
+            amount: wallet.balance,
+            address: wallet.publicKey,
+            signature: wallet.sign(badMap)
+          },
+          outputMap: badMap
+        }
+
+        newChain.addBlock({ data: [badTransaction, rewardTransaction]});
+        expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+        expect(errMock).toHaveBeenCalled();
+      });
     });
 
     describe('and a block contains multiple identical transactions', () => {
