@@ -168,11 +168,10 @@ describe('Blockchain Class', () => {
 
     describe('the transaction data is valid', () => {
       it('returns true', () => {
-        newChain.addBlock({
-          data: [transaction, rewardTransaction]
-        });
+        newChain.addBlock({ data: [transaction, rewardTransaction]});
 
-        expect(blockchain.validTransactionData({chain: newChain.chain})).toBe(true);
+        expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(true);
+        expect(errMock).not.toHaveBeenCalled();
       });
     });
 

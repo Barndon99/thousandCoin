@@ -52,19 +52,19 @@ class Blockchain {
             return false;
           } 
 
-          console.log("HERE")
+          console.log("IN FIRST IF")
         } else {
+          console.log("IN SECOND IF");
             if (!Transaction.validTransaction(transaction)) {
               console.error('Invalid transaction');
               return false;
             }
-            console.log("HERE");
             const trueBalance = Wallet.calculateBalance({ 
               chain: this.chain, 
               address: transaction.input.address 
             });
 
-            if (transaction.input.address !== trueBalance) {
+            if (transaction.input.amount !== trueBalance) {
               console.error('invalid input amount');
               return false;
             }
