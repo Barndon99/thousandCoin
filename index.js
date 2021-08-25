@@ -4,7 +4,8 @@ const request = require('request');
 const Blockchain = require('./blockchain/index.js');
 const PubSub = require('./app/pubsub.js');
 const TransactionPool = require('./wallet/transactionPool.js');
-const Wallet = require('./wallet')
+const Wallet = require('./wallet');
+const TransactionMiner = require('./app/transactionMiner.js');
 
 //starts app
 const app = express();
@@ -16,14 +17,13 @@ const transactionPool = new TransactionPool();
 const wallet = new Wallet();
 //Uses redis to broadcast and recieve updates to the network
 const pubsub = new PubSub({ blockchain, transactionPool });
+//Handles rewarding miners for successfuly mining blocks
+const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub });
 
 const DEFAULT_PORT = 3000;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
 
-
-// setTimeout(() => pubsub.broadcastChain(), 1000);
-
-app.use(express.urlencoded({extended: true})); 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/api/blocks', (req, res) => {
@@ -32,11 +32,11 @@ app.get('/api/blocks', (req, res) => {
 
 app.post('/api/mine', (req, res) => {
   const { data } = req.body;
-  
+
   blockchain.addBlock({ data });
 
   pubsub.broadcastChain();
-  
+
   res.redirect('/api/blocks');
 })
 
@@ -49,10 +49,10 @@ app.post('/api/transaction', (req, res) => {
     if (transaction) {
       transaction.update({ senderWallet: wallet, recipient, amount });
     } else {
-      transaction = wallet.createTransaction({ recipient, amount });
+      transaction = wallet.createTransaction({ recipient, amount, chain: blockchain.chain });
     }
-  } catch(error) {
-    return res.status(400).json({type: 'error', message: error.message });
+  } catch (error) {
+    return res.status(400).json({ type: 'error', message: error.message });
   }
 
   transactionPool.setTransaction(transaction);
@@ -66,8 +66,23 @@ app.get('/api/transactionPoolMap', (req, res) => {
   res.json(transactionPool.transactionMap);
 })
 
+app.get('/api/mineTransactions', (req, res) => {
+  transactionMiner.mineTransactions();
+
+  res.redirect('/api/blocks');
+})
+
+app.get('/api/walletInfo', (req, res) => {
+  const address = wallet.publicKey;
+ 
+  res.json({ 
+    address,
+    balance: Wallet.calculateBalance({ chain: blockchain.chain, address })
+  });
+});
+
 const syncWithRootState = () => {
-  request({ url: `${ROOT_NODE_ADDRESS}/api/blocks`}, (error, response, body) => {
+  request({ url: `${ROOT_NODE_ADDRESS}/api/blocks` }, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootChain = JSON.parse(body);
 
@@ -76,7 +91,7 @@ const syncWithRootState = () => {
     }
   });
 
-  request({ url: `${ROOT_NODE_ADDRESS}/api/transactionPoolMap`}, (error, response, body) => {
+  request({ url: `${ROOT_NODE_ADDRESS}/api/transactionPoolMap` }, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootTransactionPoolMap = JSON.parse(body);
 
@@ -98,7 +113,7 @@ const port = PEER_PORT || DEFAULT_PORT;
 
 app.listen(port, () => {
   console.log(`Listening on localhost:${port}`);
-  
+
   if (port !== DEFAULT_PORT) {
     syncWithRootState();
   }
